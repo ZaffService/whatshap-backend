@@ -11,17 +11,20 @@ const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 
-// Configuration CORS correcte
+// Ajoutez ces middlewares avant la configuration CORS
+server.use(express.static('public'));
+server.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Configuration CORS mise à jour
 server.use(cors({
-    origin: '*',  // Permettre toutes les origines en développement
+    origin: ['https://final-whatshap.vercel.app', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: false,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin']
 }));
 
 server.use(middlewares);
 server.use(router);
-server.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Gestion des erreurs
 server.use((err, req, res, next) => {

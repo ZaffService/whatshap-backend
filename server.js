@@ -11,20 +11,18 @@ const __dirname = path.dirname(__filename);
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 
-// Configuration CORS améliorée
+// Configuration CORS simplifiée
 server.use(cors({
-    origin: '*', // Temporairement autoriser toutes les origines
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    credentials: false // Désactiver temporairement
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware pour les fichiers statiques
-server.use(express.static('public'));
 server.use('/images', express.static(path.join(__dirname, 'images')));
 
-// Route de test
+// Routes de base
 server.get('/test', (req, res) => {
     res.json({ status: 'ok' });
 });

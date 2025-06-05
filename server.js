@@ -9,39 +9,31 @@ const __dirname = path.dirname(__filename);
 
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
-const middlewares = jsonServer.defaults();
-
-// Ajoutez ces middlewares avant la configuration CORS
-server.use(express.static('public'));
-server.use('/images', express.static(path.join(__dirname, 'images')));
-
-// Configuration CORS mise à jour
-server.use(cors({
-    origin: ['https://final-whatshap.vercel.app', 'http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin']
-}));
-
-server.use(middlewares);
-server.use(router);
-
-// Gestion des erreurs
-server.use((err, req, res, next) => {
-    console.error('Erreur:', err);
-    res.status(500).json({ error: 'Erreur serveur interne' });
+const middlewares = jsonServer.defaults({
+    static: path.join(__dirname, 'public')
 });
 
-const PORT = process.env.PORT || 10000;
+// Configuration CORS
+server.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-try {
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log('------------------------------------');
-        console.log(`✅ JSON Server est démarré sur le port ${PORT}`);
-        console.log(`🌍 Mode: ${process.env.NODE_ENV || 'development'}`);
-        console.log('------------------------------------');
-    });
-} catch (error) {
-    console.error('Erreur de démarrage:', error);
-    process.exit(1);
-}
+// Middleware pour les images
+server.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Middleware par défaut de json-server
+server.use(middlewares);
+
+// Route de test pour vérifier si le serveur fonctionne
+server.get('/test', (req, res) => {
+    res.json({ status: 'Server is running' });
+});
+
+server.use(router);
+
+const PORT = process.env.PORT || 5001;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

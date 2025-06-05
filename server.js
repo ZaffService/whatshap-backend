@@ -1,33 +1,27 @@
 import jsonServer from 'json-server';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 const middlewares = jsonServer.defaults();
 
-// Configuration CORS améliorée
+// Configuration CORS correcte
 server.use(cors({
-    origin: ['https://final-whatshap.vercel.app'],
+    origin: '*',  // Permettre toutes les origines en développement
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
+    credentials: false,
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Ajoutez ces headers à chaque réponse
-server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
-
-// Middleware de logging
-server.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
-
 server.use(middlewares);
 server.use(router);
+server.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Gestion des erreurs
 server.use((err, req, res, next) => {

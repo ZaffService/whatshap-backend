@@ -13,12 +13,27 @@ const middlewares = jsonServer.defaults({
     static: path.join(__dirname, 'public')
 });
 
-// Configuration CORS
+// Configuration CORS mise à jour
 server.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Length', 'Content-Type']
 }));
+
+// Middleware pour les fichiers statiques
+server.use(express.static('public'));
+server.use('/images', express.static(path.join(__dirname, 'images')));
+
+// Ajout d'une route pour tester les images
+server.get('/test-image/:imageName', (req, res) => {
+    const imagePath = path.join(__dirname, 'images', req.params.imageName);
+    res.sendFile(imagePath, (err) => {
+        if (err) {
+            res.status(404).json({ error: 'Image non trouvée' });
+        }
+    });
+});
 
 // Route racine pour vérifier l'API
 server.get('/', (req, res) => {
@@ -31,9 +46,6 @@ server.get('/', (req, res) => {
         }
     });
 });
-
-// Middleware pour les images
-server.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Middleware par défaut de json-server
 server.use(middlewares);

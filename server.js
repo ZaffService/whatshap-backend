@@ -12,16 +12,9 @@ server.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middleware de logging
-server.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
-
 server.use(middlewares);
 server.use(router);
 
-// Configuration du port
 const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, '0.0.0.0', () => {

@@ -11,39 +11,43 @@ const __dirname = path.dirname(__filename);
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 
-// Middleware CORS amélioré
+// Configuration CORS
 server.use(cors({
-    origin: ['https://final-whatshap.vercel.app', 'http://localhost:5173'],
+    origin: '*',  // Temporairement autoriser toutes les origines
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    credentials: true
+    credentials: false
 }));
 
-// Pre-flight requests pour CORS
+// Pre-flight requests
 server.options('*', cors());
 
-// Middleware pour parser le JSON
-server.use(express.json());
-
-// Middleware pour les fichiers statiques
-server.use('/images', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-}, express.static(path.join(__dirname, 'images')));
-
-// Middleware d'authentification
+// Middleware d'authentification simplifié
 server.use((req, res, next) => {
-    if (req.path === '/login' || req.path.startsWith('/images')) {
+    // Chemins publics
+    const publicPaths = ['/login', '/register'];
+    if (publicPaths.includes(req.path) || req.path.startsWith('/images')) {
         return next();
     }
-    
+
     const userId = req.headers.authorization;
     if (!userId) {
         return res.status(401).json({ error: 'Non autorisé' });
     }
-    
+
     next();
+});
+
+// Route de login
+server.post('/login', (req, res) => {
+    const { phone } = req.body;
+    const user = router.db.get('users').find({ phone }).value();
+    
+    if (!user) {
+        return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+    
+    res.json(user);
 });
 
 // Routes de base

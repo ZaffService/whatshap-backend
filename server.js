@@ -25,28 +25,43 @@ server.options('*', cors());
 // Middleware d'authentification simplifié
 server.use((req, res, next) => {
     // Chemins publics
-    const publicPaths = ['/login', '/register'];
-    if (publicPaths.includes(req.path) || req.path.startsWith('/images')) {
+    if (req.path === '/login' || req.path.startsWith('/images')) {
         return next();
     }
 
-    const userId = req.headers.authorization;
-    if (!userId) {
-        return res.status(401).json({ error: 'Non autorisé' });
+    const auth = req.headers.authorization;
+    if (!auth) {
+        return res.status(401).json({ 
+            error: 'Non autorisé',
+            message: 'Authentification requise'
+        });
     }
 
+    // Vérifier l'utilisateur dans la base
+    const user = router.db.get('users').find({ id: auth }).value();
+    if (!user) {
+        return res.status(401).json({ 
+            error: 'Non autorisé',
+            message: 'Utilisateur non trouvé'
+        });
+    }
+
+    req.user = user;
     next();
 });
 
 // Route de login
 server.post('/login', (req, res) => {
     const { phone } = req.body;
+    if (!phone) {
+        return res.status(400).json({ error: 'Numéro de téléphone requis' });
+    }
+
     const user = router.db.get('users').find({ phone }).value();
-    
     if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
-    
+
     res.json(user);
 });
 

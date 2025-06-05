@@ -1,4 +1,14 @@
 {
+  "users": [
+    {
+      "id": "1",
+      "name": "Zafe",
+      "phone": "777123456",
+      "avatar": "/images/pathe.jpeg",
+      "status": "en ligne",
+      "lastSeen": null
+    }
+  ],
   "chats": [
     {
       "id": "1",

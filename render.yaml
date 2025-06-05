@@ -3,12 +3,7 @@ services:
     name: whatshap-backend
     env: node
     buildCommand: npm install
-    startCommand: node server.js
+    startCommand: npm start
     envVars:
       - key: PORT
         value: 10000
-    staticPublishPath: ./images
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

@@ -11,16 +11,40 @@ const __dirname = path.dirname(__filename);
 const server = jsonServer.create();
 const router = jsonServer.router('db.json');
 
-// Configuration CORS simplifiée
+// Middleware CORS amélioré
 server.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: ['https://final-whatshap.vercel.app', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    credentials: true
 }));
 
+// Pre-flight requests pour CORS
+server.options('*', cors());
+
+// Middleware pour parser le JSON
+server.use(express.json());
+
 // Middleware pour les fichiers statiques
-server.use('/images', express.static(path.join(__dirname, 'images')));
+server.use('/images', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+}, express.static(path.join(__dirname, 'images')));
+
+// Middleware d'authentification
+server.use((req, res, next) => {
+    if (req.path === '/login' || req.path.startsWith('/images')) {
+        return next();
+    }
+    
+    const userId = req.headers.authorization;
+    if (!userId) {
+        return res.status(401).json({ error: 'Non autorisé' });
+    }
+    
+    next();
+});
 
 // Routes de base
 server.get('/test', (req, res) => {

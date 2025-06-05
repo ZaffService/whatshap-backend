@@ -20,22 +20,23 @@ server.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Route racine pour vérifier l'API
+server.get('/', (req, res) => {
+    res.json({
+        status: 'success',
+        message: 'WhatsApp Backend API is running',
+        endpoints: {
+            chats: '/chats',
+            images: '/images'
+        }
+    });
+});
+
 // Middleware pour les images
 server.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Middleware par défaut de json-server
 server.use(middlewares);
-
-// Route de test pour vérifier si le serveur fonctionne
-server.get('/test', (req, res) => {
-    res.json({ status: 'Server is running' });
-});
-
-// Ajoutez une route par défaut
-server.get('/', (req, res) => {
-    res.json({ status: 'WhatsApp Backend API is running' });
-});
-
 server.use(router);
 
 const PORT = process.env.PORT || 10000;

@@ -31,9 +31,14 @@ server.get('/test', (req, res) => {
     res.json({ status: 'Server is running' });
 });
 
+// Ajoutez une route par défaut
+server.get('/', (req, res) => {
+    res.json({ status: 'WhatsApp Backend API is running' });
+});
+
 server.use(router);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
